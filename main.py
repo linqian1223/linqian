@@ -75,8 +75,59 @@ def get_ciba():
     note_ch = r.json()["note"]
     return note_ch, note_en
  
- 
+def send_message(to_user, access_token, region_name, weather, temp, wind_dir, note_ch, note_en):
+    url = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token={}".format(access_token)
+    data = {
+        "touser": to_user,
+        "template_id": config["template_id"],
+        "url": "http://weixin.qq.com/download",
+        "topcolor": "#FF0000",
+        "data": {
 
+            "region": {
+                "value": region_name,
+                "color": get_color()
+            },
+            "weather": {
+                "value": weather,
+                "color": get_color()
+            },
+            "temp": {
+                "value": temp,
+                "color": get_color()
+            },
+            "wind_dir": {
+                "value": wind_dir,
+                "color": get_color()
+            },
+
+            "note_en": {
+                "value": note_en,
+                "color": get_color()
+            },
+            "note_ch": {
+                "value": note_ch,
+                "color": get_color()
+            }
+        }
+    }
+
+    headers = {
+        'Content-Type': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                      'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36'
+    }
+    response = post(url, headers=headers, json=data).json()
+    if response["errcode"] == 40037:
+        print("推送消息失败，请检查模板id是否正确")
+    elif response["errcode"] == 40036:
+        print("推送消息失败，请检查模板id是否为空")
+    elif response["errcode"] == 40003:
+        print("推送消息失败，请检查微信号是否正确")
+    elif response["errcode"] == 0:
+        print("推送消息成功")
+    else:
+        print(response)
  
  
 if __name__ == "__main__":
